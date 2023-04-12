@@ -8,7 +8,7 @@ OneAPI currently only works in Linux, if you are using Windows you will need to 
 
 Python 3.10 is recommended. 3.11 will definitely not work. 3.9 might, but I'm only going to test 3.10.
 
-Please use a venv or preferably a conda environment (mandatory for compiling the modules yourself). Currently, it seems entirely possible that an update to Intel Extension for Pytorch or their wheels greatly improves memory use, fixes odd results from the TTS, or more.
+Please use conda (mandatory for compiling the modules yourself) or a venv. Currently, it seems entirely possible that an update to Intel Extension for Pytorch or their wheels greatly improves memory use, fixes odd results from the TTS, or more, and you might want to keep the dependencies isolated from anything else.
 
 TorchAudio is necessary for this project. Currently, Intel do not distribute TorachAudio wheels. See this issue: https://github.com/intel/intel-extension-for-pytorch/issues/301
 
@@ -38,9 +38,9 @@ Compiling from source will also entail compiling a special version of LLVM, Pyto
 <details>
 <summary>Links</summary>
 
-https://intel.github.io/intel-extension-for-pytorch/xpu/latest/tutorials/installation.html - a large, comprehensive guide
+https://github.com/intel/intel-extension-for-pytorch/blob/xpu-master/docs/tutorials/installation.md#install-via-compiling-from-source - a large, comprehensive guide
 
-https://github.com/intel/intel-extension-for-pytorch/blob/xpu-master/docs/tutorials/installation.md#install-via-compiling-from-source - a smaller guide with only a section from the above one
+https://intel.github.io/intel-extension-for-pytorch/xpu/latest/tutorials/installation.html - a smaller guide with only a section from the above one
 
 https://github.com/intel/intel-extension-for-pytorch/blob/xpu-master/scripts/compile_bundle.sh - the script
 
@@ -58,9 +58,15 @@ Make a new folder, set up a new conda environment and download the script, e.g.
 ```shell
 mkdir ipexcompile
 cd ./ipexcompile
-conda create ipexcompile
+conda create -n ipexcompile python=3.10
 wget https://raw.githubusercontent.com/a-One-Fan/tortoise-tts-fast-oneapi/main/scripts/compile_bundle_v2.sh
 ```
+
+Prior to compiling, you will need some mysterious dependency/ies otherwise compiling will fail. It's one of the following, for the time being you can install all of them:
+```shell
+sudo apt-get install build-essential intel-opencl-icd intel-level-zero-gpu level-zero intel-media-va-driver-non-free libmfx1 libgl-dev intel-oneapi-compiler-dpcpp-cpp intel-oneapi-mkl python3-pip
+```
+I can make guesses for which are unnecessary (e.g. python3-pip, limbfx1, libgl-dev), but I'm not going to try for now. If you don't install them, AOT compilation will fail for IPEX as -fsycl won't be available for the compiler. Compiling with AOT is possible, but pointless as the result is unusably slow. 
 
 Then compile:
 ```shell
@@ -68,7 +74,12 @@ Then compile:
 ```
 The script finishes with a quick sanity check. If no compiles are said to have failed, but the sanity check still failed, you will have to scour the logs yourself. Run the script without any arguments for more instructions on rebuilding individual components so you don't have to wait for hours - LLVM and Pytorch take the longest, and tend to compile successfuly; IPEX and TorchAudio tend to not.
 
-After it's done, you will have Intel Extension for Pytorch, Pytorch and TorchAudio all installed in the environment (alongside TorchVision).
+When it's done, you will have Intel Extension for Pytorch, Pytorch and TorchAudio all installed in the environment (alongside TorchVision).
+
+Don't forget to back out of that directory.
+```shell
+cd ..
+```
 
 </details>
 <br>
