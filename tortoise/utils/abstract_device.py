@@ -7,7 +7,8 @@ class abstract_device_class:
         if torch.xpu.is_available():
             self._device = torch.device("xpu")
             self._device_str = "xpu"
-            print("Found an Intel GPU with {} memory (this is less on WSL2)".format(ipex.xpu.get_device_properties(self._device).total_memory))
+            memgb = ipex.xpu.get_device_properties(self._device).total_memory / (1024**3)
+            print("Found an Intel GPU with {}GB memory (this is less on WSL2)".format(round(memgb, 3)))
         else:
             self._device = torch.device("cpu")
             self._device_str = "cpu"
