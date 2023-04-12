@@ -79,7 +79,7 @@ When it's done, you will have Intel Extension for Pytorch, Pytorch and TorchAudi
 Don't forget to back out of that directory.
 ```shell
 cd ..
-```
+``` 
 
 </details>
 <br>
@@ -92,9 +92,22 @@ python3 -m pip install -e .
 pip3 install git+https://github.com/152334H/BigVGAN.git
 ```
 
+Streamlit (for the webui) seemed broken on WSL2. Reinstalling it fixed that:
+```
+conda install streamlit -y
+conda remove streamlit -y
+conda install streamlit -y
+```
+
 # Usage, and some notes and current issues
 
-Refer to the old readme below for usage ([link](https://github.com/a-One-Fan/tortoise-tts-fast-oneapi#cli-usage))
+Launch the webui with 
+```shell
+streamlit run scripts/app.py
+```
+when inside the repo's main directory. Skip giving your email and just press enter.
+
+Refer to the old readme below for more usage ([link](https://github.com/a-One-Fan/tortoise-tts-fast-oneapi#cli-usage))
 
 If you are running with streamlit, and get an exception mentioning a `db` of some sort, and maybe an `open`, keep re-running and it should eventually work.
 
