@@ -1,4 +1,5 @@
 # ## AGPL: a notification must be added stating that changes have been made to that file.
+# ## AGPL: this file has been changed further.
 
 import os
 import random
@@ -29,6 +30,8 @@ from tortoise.utils.wav2vec_alignment import Wav2VecAlignment
 from tortoise.models.utils import MODELS_DIR, get_model_path
 
 from contextlib import contextmanager
+
+from tortoise.utils.abstract_device import abstract_device
 
 def pad_or_truncate(t, length):
     """
