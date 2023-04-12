@@ -1,3 +1,10 @@
+This is a fork of the fast Tortoise (https://github.com/152334H/tortoise-tts-fast) aiming to introduce Intel OneAPI support for usage with the new Intel GPUs.
+
+### Currently, nothing is implemented. If you were very eager to find this, expect the changes very soon.
+
+
+# Old Readmes
+
 # this repo is now maintenance only; please develop a fork || use the mrq repo if you have large features to submit
 
 ### recent updates
