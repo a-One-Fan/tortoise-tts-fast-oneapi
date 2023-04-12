@@ -110,8 +110,10 @@ def main():
                 seed = None
             voice_fixer = st.checkbox(
                 "Voice fixer",
-                help="Use `voicefixer` to improve audio quality. This is a post-processing step which can be applied to any output.",
-                value=True,
+                help="Use `voicefixer` to improve audio quality. This is a post-processing step which can be applied to any output.\n"
+                " Currently still CUDA-only and thus unsupported.",
+                value=False,
+                disabled=True,
             )
             """#### Directories"""
             output_path = st.text_input(
