@@ -1,9 +1,103 @@
 This is a fork of the fast Tortoise (https://github.com/152334H/tortoise-tts-fast) aiming to introduce Intel OneAPI support for usage with the new Intel GPUs.
 
-### Currently, nothing is implemented. If you were very eager to find this, expect the changes very soon.
+# Currently, nothing is implemented. If you were very eager to find this, expect the changes very soon.
 
+# Preliminary installation instructions
+
+OneAPI currently only works in Linux, if you are using Windows you will need to set up WSL2.
+
+Python 3.10 is recommended. 3.11 will definitely not work. 3.9 might, but I'm only going to test 3.10.
+
+Please use a venv or preferably a conda environment (mandatory for compiling the modules yourself). Currently, it seems entirely possible that an update to Intel Extension for Pytorch or their wheels greatly improves memory use, fixes odd results from the TTS, or more.
+
+TorchAudio is necessary for this project. Currently, Intel do not distribute TorachAudio wheels. See this issue: https://github.com/intel/intel-extension-for-pytorch/issues/301
+
+As such, there's 2 options:
+
+<details>
+<summary>Downloading my personally built, potentially suspicious wheel</summary>
+<br>
+Link: (mega link now, github link later?) 
+
+As a reminder, you can open file explorer in your current WSL2 directory via `explorer.exe .` 
+
+After putting the wheel in your shell's working directory, configuring your conda/venv, you should install with:
+```shell
+python -m pip install --force-reinstall --no-deps thewheel.whl
+python -m pip install torch==1.13.0a0 intel_extension_for_pytorch==1.13.10+xpu -f https://developer.intel.com/ipex-whl-stable-xpu
+```
+</details>
+
+<br>
+
+<details>
+<summary>Compiling from source - takes a long while, compile might fail, has newest fixes</summary>
+<br>
+Compiling from source will also entail compiling a special version of LLVM, Pytorch, TorchVision and Intel Extension for Pytorch. This will take around an hour (on a 3700x). An upside is that you will compile the master, with the newest fixes. In order to compile from source, Intel have made multiple guides and a script. I've consolidated them here, and improved the script for hopefully more succesful compiles. Here are their links, which you can ignore:
+
+<details>
+<summary>Links</summary>
+
+https://intel.github.io/intel-extension-for-pytorch/xpu/latest/tutorials/installation.html - a large, comprehensive guide
+
+https://github.com/intel/intel-extension-for-pytorch/blob/xpu-master/docs/tutorials/installation.md#install-via-compiling-from-source - a smaller guide with only a section from the above one
+
+https://github.com/intel/intel-extension-for-pytorch/blob/xpu-master/scripts/compile_bundle.sh - the script
+
+https://github.com/intel/intel-extension-for-pytorch/blob/xpu-master/docs/tutorials/AOT.md - guide for AOT (aka "just use ats-m150")
+</details>
+<br>
+
+First, install conda if you haven't already: https://docs.anaconda.com/anaconda/install/linux/ 
+
+Afterwards, install the Intel OneAPI Base Toolkit. Prefer the offline GUI installer, however installing with APT also worked for me. When using the GUI, do the recommended install.
+
+https://www.intel.com/content/www/us/en/developer/tools/oneapi/toolkits.html#base-kit
+
+Make a new folder, set up a new conda environment and download the script, e.g.
+```shell
+mkdir ipexcompile
+cd ./ipexcompile
+conda create ipexcompile
+wget https://raw.githubusercontent.com/a-One-Fan/tortoise-tts-fast-oneapi/main/scripts/compile_bundle_v2.sh
+```
+
+Then compile:
+```shell
+./compile_bundle.sh /opt/intel/oneapi/compiler/latest /opt/intel/oneapi/mkl/latest ats-m150
+```
+The script finishes with a quick sanity check. If no compiles are said to have failed, but the sanity check still failed, you will have to scour the logs yourself. Run the script without any arguments for more instructions on rebuilding individual components so you don't have to wait for hours - LLVM and Pytorch take the longest, and tend to compile successfuly; IPEX and TorchAudio tend to not.
+
+After it's done, you will have Intel Extension for Pytorch, Pytorch and TorchAudio all installed in the environment (alongside TorchVision).
+
+</details>
+<br>
+
+After whichever of the 2 methods you chose:
+```shell
+git clone https://github.com/a-One-Fan/tortoise-tts-fast-oneapi
+cd tortoise-tts-fast-oneapi
+python3 -m pip install -e .
+pip3 install git+https://github.com/152334H/BigVGAN.git
+```
+
+# Usage, and some notes and current issues
+
+Refer to the old readme below for usage ([link](https://github.com/a-One-Fan/tortoise-tts-fast-oneapi#cli-usage))
+
+If you are running with streamlit, and get an exception mentioning a `db` of some sort, and maybe an `open`, keep re-running and it should eventually work.
+
+Currently, the voice fixer does not work, as it's another separate CUDA-dependent repository that will need its own porting as well. Enabling the voice fixer will cause an exception.
+
+Sometimes, the produced voices will sound like they swallowed the microphone mid-sentence (or, whole sentence). I'm not sure if this is normal, as I have no reference point with a working Nvidia GPU and using the CPU takes incredibly long, though I assume it's not. If this is indeed not normal, it might be an issue with the current version of IPEX, and might be fixed by Intel later.
+
+The batch size can only be powers of 2. Increasing it also seems to yield a 2x speedup. Running a batch size of 16 on my 16GB A770 **almost** worked, however it ran out of VRAM soon after. Memory use might lower as I learn more, or as IPEX gets improved, allowing for this good 2x speed boost. Currently, the batch size will be 8 for 16GB GPUs, and 4 for 6/8GB GPUs.
+
+<br><br><br><br><br>
 
 # Old Readmes
+
+<br>
 
 # this repo is now maintenance only; please develop a fork || use the mrq repo if you have large features to submit
 
