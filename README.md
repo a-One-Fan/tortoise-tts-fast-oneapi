@@ -8,7 +8,7 @@ OneAPI currently only works in Linux, if you are using Windows you will need to 
 
 Python 3.10 is recommended. 3.11 will definitely not work. 3.9 might, but I'm only going to test 3.10.
 
-Please use conda (mandatory for compiling the modules yourself) or a venv. Currently, it seems entirely possible that an update to Intel Extension for Pytorch or their wheels greatly improves memory use, fixes odd results from the TTS, or more, and you might want to keep the dependencies isolated from anything else.
+For simplicity, conda is mandatory. Either way, it seems entirely possible that an update to Intel Extension for Pytorch or their wheels greatly improves memory use, fixes odd results from the TTS, or more, and you might want to keep the dependencies isolated from anything else.
 
 TorchAudio is necessary for this project. Currently, Intel do not distribute TorachAudio wheels. See this issue: https://github.com/intel/intel-extension-for-pytorch/issues/301
 
@@ -21,7 +21,7 @@ Link: (mega link now, github link later?)
 
 As a reminder, you can open file explorer in your current WSL2 directory via `explorer.exe .` 
 
-After putting the wheel in your shell's working directory, configuring your conda/venv, you should install with:
+After putting the wheel in your shell's working directory, configuring your conda, you should install with:
 ```shell
 python -m pip install --force-reinstall --no-deps thewheel.whl
 python -m pip install torch==1.13.0a0 intel_extension_for_pytorch==1.13.10+xpu -f https://developer.intel.com/ipex-whl-stable-xpu
@@ -90,26 +90,29 @@ git clone https://github.com/a-One-Fan/tortoise-tts-fast-oneapi
 cd tortoise-tts-fast-oneapi
 python3 -m pip install -e .
 pip3 install git+https://github.com/152334H/BigVGAN.git
-```
-
-Streamlit (for the webui) seemed broken on WSL2. Reinstalling it fixed that:
-```
+conda install -c conda-forge libstdcxx-ng=12 -y
 conda install streamlit -y
 conda remove streamlit -y
 conda install streamlit -y
 ```
 
+Streamlit (for the webui) seemed broken on WSL2. Reinstalling it fixed that
+
 # Usage, and some notes and current issues
 
-Launch the webui with 
+For ease of use, you can make an alias. Modern .bashrc recommends you make a .bash_aliases file (in your home directory) and put your aliases there. Assuming that the repository is in ~:
 ```shell
-streamlit run scripts/app.py
+alias turtle="cd ~/tortoise-tts-fast-oneapi; source /opt/intel/oneapi/compiler/latest/env/vars.sh; source /opt/intel/oneapi/mkl/latest/env/vars.sh; streamlit run scripts/app.py"
 ```
-when inside the repo's main directory. Skip giving your email and just press enter.
+You may then just `turtle` - this will launch the web UI.
+You can stop it with ctrl+c.
+Skip giving your email and just press enter.
+Downloads will likely take some time, so be patient.
 
+If you wish to use tortoise without that alias (e.g. use the CLI), you need to have sourced the 2 above oneapi files mentioned in that it. You can make a 2nd alias for just that.
 Refer to the old readme below for more usage ([link](https://github.com/a-One-Fan/tortoise-tts-fast-oneapi#cli-usage))
 
-If you are running with streamlit, and get an exception mentioning a `db` of some sort, and maybe an `open`, keep re-running and it should eventually work.
+If you are using the webui, and get an exception mentioning a `dbm`/`db` of some sort, and maybe an `open`, keep re-running (wait slightly after exiting and before relaunching) and it should eventually work.
 
 Currently, the voice fixer does not work, as it's another separate CUDA-dependent repository that will need its own porting as well. Enabling the voice fixer will cause an exception.
 
