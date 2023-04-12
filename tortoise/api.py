@@ -69,7 +69,7 @@ def load_discrete_vocoder_diffuser(
     )
 
 
-def format_conditioning(clip, cond_length=132300, device="cuda"):
+def format_conditioning(clip, cond_length=132300, device=abstract_device.get_device_str()):
     """
     Converts the given conditioning signal to a MEL spectrogram and clips it as expected by the models.
     """
@@ -179,14 +179,12 @@ def pick_best_batch_size_for_gpu():
     Tries to pick a batch size that will fit in your GPU. These sizes aren't guaranteed to work, but they should give
     you a good shot.
     """
-    if torch.cuda.is_available():
-        _, available = torch.cuda.mem_get_info()
+    if abstract_device.get_device_str() != "cpu":
+        _, available = abstract_device.get_mem()
         availableGb = available / (1024**3)
-        if availableGb > 14:
-            return 16
-        elif availableGb > 10:
+        if availableGb > 11:
             return 8
-        elif availableGb > 7:
+        else:
             return 4
     return 1
 
@@ -243,7 +241,7 @@ class TextToSpeech:
             else autoregressive_batch_size
         )
         self.enable_redaction = enable_redaction
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = abstract_device.get_device()
         if self.enable_redaction:
             self.aligner = Wav2VecAlignment()
 
@@ -341,11 +339,12 @@ class TextToSpeech:
         self.high_vram = high_vram
 
     @contextmanager
-    def temporary_cuda(self, model):
+    def temporary_gpu(self, model):
         if self.high_vram:
             yield model
         else:
             m = model.to(self.device)
+            # TODO: Ipex optimize here?
             yield m
             m = model.cpu()
 
@@ -400,7 +399,7 @@ class TextToSpeech:
             for ls in voice_samples:
                 auto_conds.append(format_conditioning(ls[0], device=self.device))
             auto_conds = torch.stack(auto_conds, dim=1)
-            with self.temporary_cuda(self.autoregressive) as ar:
+            with self.temporary_gpu(self.autoregressive) as ar:
                 auto_latent = ar.get_conditioning(auto_conds)
 
             diffusion_conds = []
@@ -446,7 +445,7 @@ class TextToSpeech:
                         )
             diffusion_conds = torch.stack(diffusion_conds, dim=1)
 
-            with self.temporary_cuda(self.diffusion) as diffusion:
+            with self.temporary_gpu(self.diffusion) as diffusion:
                 diffusion_latent = diffusion.get_conditioning(diffusion_conds)
 
         if return_mels:
@@ -666,10 +665,10 @@ class TextToSpeech:
             self.autoregressive = self.autoregressive.to(self.device)
             if verbose:
                 print("Generating autoregressive samples..")
-            with self.temporary_cuda(
+            with self.temporary_gpu(
                 self.autoregressive
             ) as autoregressive, torch.autocast(
-                device_type="cuda", dtype=torch.float16, enabled=half
+                device_type=abstract_device.get_device_str(), dtype=torch.float16, enabled=half
             ):
                 for b in tqdm(range(num_batches), disable=not verbose):
                     codes = autoregressive.inference_speech(
@@ -692,8 +691,8 @@ class TextToSpeech:
             )
 
             clip_results = []
-            with self.temporary_cuda(self.clvp) as clvp, torch.autocast(
-                device_type="cuda", dtype=torch.float16, enabled=half
+            with self.temporary_gpu(self.clvp) as clvp, torch.autocast(
+                device_type=abstract_device.get_device_str(), dtype=torch.float16, enabled=half
             ):
                 if cvvp_amount > 0:
                     if self.cvvp is None:
@@ -742,7 +741,7 @@ class TextToSpeech:
             # The diffusion model actually wants the last hidden layer from the autoregressive model as conditioning
             # inputs. Re-produce those for the top results. This could be made more efficient by storing all of these
             # results, but will increase memory usage.
-            with self.temporary_cuda(self.autoregressive) as autoregressive:
+            with self.temporary_gpu(self.autoregressive) as autoregressive:
                 best_latents = autoregressive(
                     auto_conditioning.repeat(k, 1),
                     text_tokens.repeat(k, 1),
@@ -763,7 +762,7 @@ class TextToSpeech:
             if verbose:
                 print("Transforming autoregressive outputs into audio..")
             wav_candidates = []
-            with self.temporary_cuda(self.diffusion) as diffusion, self.temporary_cuda(
+            with self.temporary_gpu(self.diffusion) as diffusion, self.temporary_gpu(
                 self.vocoder
             ) as vocoder:
                 diffusion.enable_fp16 = half  # hacky
