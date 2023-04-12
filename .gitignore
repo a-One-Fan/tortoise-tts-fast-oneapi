@@ -140,3 +140,4 @@ debug_states/*
 notes.md
 TensorRT/
 k-diffusion/
+*.code-workspace
