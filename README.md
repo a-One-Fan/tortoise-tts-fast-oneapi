@@ -49,7 +49,7 @@ wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCT
 echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
 sudo apt update && sudo apt upgrade -y
 
-sudo apt-get install build-essential intel-oneapi-mkl intel-level-zero-gpu level-zero intel-opencl-icd intel-media-va-driver-non-free libmfx1 libgl-dev intel-oneapi-compiler-dpcpp-cpp
+sudo apt-get install build-essential intel-oneapi-mkl intel-level-zero-gpu level-zero intel-opencl-icd intel-media-va-driver-non-free libmfx1 libgl-dev intel-oneapi-compiler-dpcpp-cpp libjpeg
 ```
 
 TorchAudio is necessary for this project. Currently, Intel do not distribute TorachAudio wheels. See this issue: https://github.com/intel/intel-extension-for-pytorch/issues/301
@@ -177,8 +177,6 @@ If you wish to use tortoise without that alias (e.g. use the CLI), you need to h
 Refer to the old readme below for more usage ([link](https://github.com/a-One-Fan/tortoise-tts-fast-oneapi#cli-usage))
 
 If you are using the webui, and get an exception mentioning a `dbm`/`db` of some sort, and maybe an `open`, keep re-running (wait slightly after exiting and before relaunching) and it should eventually work.
-
-You might get a warning: `Failed to load image Python extension`, ignore it.
 
 Currently, the voice fixer does not work, as it's another separate CUDA-dependent repository that will need its own porting as well. Enabling the voice fixer will cause an exception.
 
