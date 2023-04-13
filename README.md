@@ -141,6 +141,8 @@ python3 -m pip install -e .
 pip3 install git+https://github.com/152334H/BigVGAN.git
 conda install -c conda-forge libstdcxx-ng=12 -y
 pip install streamlit
+pip install expecttest
+pip install hypothesis
 ```
 
 # Usage, and some notes and current issues
