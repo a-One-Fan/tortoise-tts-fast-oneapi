@@ -50,6 +50,7 @@ echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt
 sudo apt update && sudo apt upgrade -y
 
 sudo apt-get install build-essential intel-oneapi-mkl intel-level-zero-gpu level-zero intel-opencl-icd intel-media-va-driver-non-free libmfx1 libgl-dev intel-oneapi-compiler-dpcpp-cpp libjpeg
+
 ```
 
 TorchAudio is necessary for this project. Currently, Intel do not distribute TorachAudio wheels. See this issue: https://github.com/intel/intel-extension-for-pytorch/issues/301
@@ -74,6 +75,7 @@ python -m pip install --force-reinstall torch-1.13.0a0+git49444c3-cp310-cp310-li
 python -m pip install --force-reinstall --no-deps torchvision-0.14.1a0+5e8e2f1-cp310-cp310-linux_x86_64.whl
 python -m pip install --force-reinstall --no-deps torchaudio-0.13.1+b90d798-cp310-cp310-linux_x86_64.whl
 python -m pip install --force-reinstall intel_extension_for_pytorch-1.13.120+git947ab23-cp310-cp310-linux_x86_64.whl
+
 ```
 
 You can then read the various licenses and notices...?
@@ -167,6 +169,7 @@ pip install hypothesis
 For ease of use, you can make an alias. Modern .bashrc recommends you make a .bash_aliases file (in your home directory) and put your aliases there. Assuming that the repository is in ~:
 ```shell
 alias turtle="cd ~/tortoise-tts-fast-oneapi; source /opt/intel/oneapi/compiler/latest/env/vars.sh; source /opt/intel/oneapi/mkl/latest/env/vars.sh; streamlit run scripts/app.py"
+
 ```
 You may then just `turtle` - this will launch the web UI. The web UI is still experimental, and can have some issues, but works mostly fine.
 You can stop it with ctrl+c.
