@@ -8,6 +8,8 @@ OneAPI currently only works in Linux, if you are using Windows you will need to 
 
 Python 3.10 is recommended. 3.11 will definitely not work. 3.9 might, but I'm only going to test 3.10.
 
+Ubuntu 22.04 LTS is recommended. Latest Ubuntu might work. Anything else is untested.
+
 For simplicity, conda is mandatory. Here's some releases you can look at if you want to install it yourself: https://docs.conda.io/en/latest/miniconda.html and make an environment. Or, you can copy-paste commands:
 
 <details>
