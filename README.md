@@ -1,14 +1,56 @@
 This is a fork of the fast Tortoise (https://github.com/152334H/tortoise-tts-fast) aiming to introduce Intel OneAPI support for usage with the new Intel GPUs.
 
-# Currently, nothing is implemented. If you were very eager to find this, expect the changes very soon.
+# Currently, the install instructions aren't working entirely correctly.
 
-# Preliminary installation instructions
+# Installation instructions
 
 OneAPI currently only works in Linux, if you are using Windows you will need to set up WSL2.
 
 Python 3.10 is recommended. 3.11 will definitely not work. 3.9 might, but I'm only going to test 3.10.
 
-For simplicity, conda is mandatory. Either way, it seems entirely possible that an update to Intel Extension for Pytorch or their wheels greatly improves memory use, fixes odd results from the TTS, or more, and you might want to keep the dependencies isolated from anything else.
+For simplicity, conda is mandatory. Here's some releases you can look at if you want to install it yourself: https://docs.conda.io/en/latest/miniconda.html and make an environment. Or, you can copy-paste commands:
+
+<details>
+<summary> Copy-paste stuff </summary>
+
+If ctrl+v doesn't work, right click often does.
+
+```shell
+wget https://repo.anaconda.com/miniconda/Miniconda3-py310_23.1.0-1-Linux-x86_64.sh
+bash Miniconda3-py310_23.1.0-1-Linux-x86_64.sh
+```
+
+Yes everything. After that:
+
+```shell
+rm Miniconda3-py310_23.1.0-1-Linux-x86_64.sh
+wsl.exe --shutdown
+```
+
+Wait until you get a message that WSL has shut down (~8 seconds), and reopen it.
+
+Make sure to make an environment just for this, e.g.
+
+```shell
+conda create -n tortoise python=3.10 -y
+conda activate tortoise
+```
+
+</details>
+<br>
+
+Install some OneAPI dependencies:
+```shell
+wget -qO - https://repositories.intel.com/graphics/intel-graphics.key | \
+  sudo gpg --dearmor --output /usr/share/keyrings/intel-graphics.gpg
+echo 'deb [arch=amd64,i386 signed-by=/usr/share/keyrings/intel-graphics.gpg] https://repositories.intel.com/graphics/ubuntu jammy arc' | \
+  sudo tee  /etc/apt/sources.list.d/intel.gpu.jammy.list
+wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \ | gpg --dearmor | sudo tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null
+echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
+sudo apt update && sudo apt upgrade -y
+
+sudo apt-get install build-essential intel-oneapi-mkl intel-level-zero-gpu level-zero intel-opencl-icd intel-media-va-driver-non-free libmfx1 libgl-dev intel-oneapi-compiler-dpcpp-cpp
+```
 
 TorchAudio is necessary for this project. Currently, Intel do not distribute TorachAudio wheels. See this issue: https://github.com/intel/intel-extension-for-pytorch/issues/301
 
@@ -17,14 +59,21 @@ As such, there's 2 options:
 <details>
 <summary>Downloading my personally built, potentially suspicious wheel</summary>
 <br>
-Link: (mega link now, github link later?) 
 
-As a reminder, you can open file explorer in your current WSL2 directory via `explorer.exe .` 
+First, look at some licenses:
 
-After putting the wheel in your shell's working directory, configuring your conda, you should install with:
+https://github.com/a-One-Fan/tortoise-tts-fast-oneapi/blob/main/bin/LICENSE
+
+https://github.com/a-One-Fan/tortoise-tts-fast-oneapi/blob/main/bin/LICENSE.1
+
+One or both of them must be necessary?
+
+Afterwards:
 ```shell
-python -m pip install --force-reinstall --no-deps thewheel.whl
-python -m pip install torch==1.13.0a0 intel_extension_for_pytorch==1.13.10+xpu -f https://developer.intel.com/ipex-whl-stable-xpu
+wget https://github.com/a-One-Fan/tortoise-tts-fast-oneapi/raw/main/bin/torchaudio-0.13.1%2Bb90d798-cp310-cp310-linux_x86_64.whl
+python -m pip install --force-reinstall --no-deps torchaudio-0.13.1+b90d798-cp310-cp310-linux_x86_64.whl
+rm torchaudio-0.13.1+b90d798-cp310-cp310-linux_x86_64.whl
+python -m pip install torch==1.13.0a0 torchvision==0.14.1a0 intel_extension_for_pytorch==1.13.10+xpu -f https://developer.intel.com/ipex-whl-stable-xpu
 ```
 </details>
 
@@ -64,7 +113,7 @@ wget https://raw.githubusercontent.com/a-One-Fan/tortoise-tts-fast-oneapi/main/s
 
 Prior to compiling, you will need some mysterious dependency/ies otherwise compiling will fail. It's one of the following, for the time being you can install all of them:
 ```shell
-sudo apt-get install build-essential intel-opencl-icd intel-level-zero-gpu level-zero intel-media-va-driver-non-free libmfx1 libgl-dev intel-oneapi-compiler-dpcpp-cpp intel-oneapi-mkl python3-pip
+sudo apt-get install intel-opencl-icd intel-media-va-driver-non-free libmfx1 libgl-dev intel-oneapi-compiler-dpcpp-cpp python3-pip
 ```
 I can make guesses for which are unnecessary (e.g. python3-pip, limbfx1, libgl-dev), but I'm not going to try for now. If you don't install them, AOT compilation will fail for IPEX as -fsycl won't be available for the compiler. Compiling with AOT is possible, but pointless as the result is unusably slow. 
 
@@ -74,7 +123,7 @@ Then compile:
 ```
 The script finishes with a quick sanity check. If no compiles are said to have failed, but the sanity check still failed, you will have to scour the logs yourself. Run the script without any arguments for more instructions on rebuilding individual components so you don't have to wait for hours - LLVM and Pytorch take the longest, and tend to compile successfuly; IPEX and TorchAudio tend to not.
 
-When it's done, you will have Intel Extension for Pytorch, Pytorch and TorchAudio all installed in the environment (alongside TorchVision).
+When it's done, you will have Intel Extension for Pytorch, Pytorch, TorchAudio and TorchVision all installed in the environment. All of them are needed.
 
 Don't forget to back out of that directory.
 ```shell
@@ -91,12 +140,8 @@ cd tortoise-tts-fast-oneapi
 python3 -m pip install -e .
 pip3 install git+https://github.com/152334H/BigVGAN.git
 conda install -c conda-forge libstdcxx-ng=12 -y
-conda install streamlit -y
-conda remove streamlit -y
-conda install streamlit -y
+pip install streamlit
 ```
-
-Streamlit (for the webui) seemed broken on WSL2. Reinstalling it fixed that
 
 # Usage, and some notes and current issues
 
@@ -104,15 +149,17 @@ For ease of use, you can make an alias. Modern .bashrc recommends you make a .ba
 ```shell
 alias turtle="cd ~/tortoise-tts-fast-oneapi; source /opt/intel/oneapi/compiler/latest/env/vars.sh; source /opt/intel/oneapi/mkl/latest/env/vars.sh; streamlit run scripts/app.py"
 ```
-You may then just `turtle` - this will launch the web UI.
+You may then just `turtle` - this will launch the web UI. The web UI is still experimental, and can have some issues, but works mostly fine.
 You can stop it with ctrl+c.
 Skip giving your email and just press enter.
-Downloads will likely take some time, so be patient.
+Downloading the various models and such will likely take a while, so be patient.
 
-If you wish to use tortoise without that alias (e.g. use the CLI), you need to have sourced the 2 above oneapi files mentioned in that it. You can make a 2nd alias for just that.
+If you wish to use tortoise without that alias (e.g. use the CLI), you need to have sourced the 2 above OneAPI files mentioned. You can make a 2nd alias for just that.
 Refer to the old readme below for more usage ([link](https://github.com/a-One-Fan/tortoise-tts-fast-oneapi#cli-usage))
 
 If you are using the webui, and get an exception mentioning a `dbm`/`db` of some sort, and maybe an `open`, keep re-running (wait slightly after exiting and before relaunching) and it should eventually work.
+
+You might get a warning: `Failed to load image Python extension`, ignore it.
 
 Currently, the voice fixer does not work, as it's another separate CUDA-dependent repository that will need its own porting as well. Enabling the voice fixer will cause an exception.
 
