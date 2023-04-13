@@ -54,27 +54,44 @@ sudo apt-get install build-essential intel-oneapi-mkl intel-level-zero-gpu level
 
 TorchAudio is necessary for this project. Currently, Intel do not distribute TorachAudio wheels. See this issue: https://github.com/intel/intel-extension-for-pytorch/issues/301
 
+And either way, it seems that the wheels they do offer right now (2023-04-13) are slightly outdated, and the ones I built work better.
+
 As such, there's 2 options:
 
 <details>
-<summary>Downloading my personally built, potentially suspicious wheel</summary>
+<summary>Downloading my personally built, potentially suspicious wheels</summary>
 <br>
 
-First, look at some licenses:
+The download will happen via mega, as some of the files are large (total ~600mb) so that means installing megatools.
 
-https://github.com/a-One-Fan/tortoise-tts-fast-oneapi/blob/main/bin/LICENSE
-
-https://github.com/a-One-Fan/tortoise-tts-fast-oneapi/blob/main/bin/LICENSE.1
-
-One or both of them must be necessary?
-
-Afterwards:
 ```shell
-wget https://github.com/a-One-Fan/tortoise-tts-fast-oneapi/raw/main/bin/torchaudio-0.13.1%2Bb90d798-cp310-cp310-linux_x86_64.whl
+mkdir wheels
+cd ./wheels
+sudo apt-get install megatools
+megadl https://mega.nz/folder/LBgQSTyS#BPjGq8WEpjoZ-uQF7deqTg
+python -m pip install requests pillow
+python -m pip install --force-reinstall torch-1.13.0a0+git49444c3-cp310-cp310-linux_x86_64.whl
+python -m pip install --force-reinstall --no-deps torchvision-0.14.1a0+5e8e2f1-cp310-cp310-linux_x86_64.whl
 python -m pip install --force-reinstall --no-deps torchaudio-0.13.1+b90d798-cp310-cp310-linux_x86_64.whl
-rm torchaudio-0.13.1+b90d798-cp310-cp310-linux_x86_64.whl
-python -m pip install torch==1.13.0a0 torchvision==0.14.1a0 intel_extension_for_pytorch==1.13.10+xpu -f https://developer.intel.com/ipex-whl-stable-xpu
+python -m pip install --force-reinstall intel_extension_for_pytorch-1.13.120+git947ab23-cp310-cp310-linux_x86_64.whl
 ```
+
+You can then read the various licenses and notices...?
+
+```shell
+cat LICENSE_ipex.txt
+cat LICENSE_torch.txt
+cat NOTICE_torch.txt
+cat LICENSE_visionaudio.txt
+```
+
+Then clean up.
+
+```shell
+cd ..
+rm -rf ./wheels
+```
+
 </details>
 
 <br>
