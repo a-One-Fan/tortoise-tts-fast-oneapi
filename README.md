@@ -128,6 +128,7 @@ mkdir ipexcompile
 cd ./ipexcompile
 conda create -n ipexcompile python=3.10
 wget https://raw.githubusercontent.com/a-One-Fan/tortoise-tts-fast-oneapi/main/scripts/compile_bundle_v2.sh
+        
 ```
 
 Prepare a blanket and pillow and compile:
