@@ -130,13 +130,7 @@ conda create -n ipexcompile python=3.10
 wget https://raw.githubusercontent.com/a-One-Fan/tortoise-tts-fast-oneapi/main/scripts/compile_bundle_v2.sh
 ```
 
-Prior to compiling, you will need some mysterious dependency/ies otherwise compiling will fail. It's one of the following, for the time being you can install all of them:
-```shell
-sudo apt-get install intel-opencl-icd intel-media-va-driver-non-free libmfx1 libgl-dev intel-oneapi-compiler-dpcpp-cpp python3-pip
-```
-I can make guesses for which are unnecessary (e.g. python3-pip, limbfx1, libgl-dev), but I'm not going to try for now. If you don't install them, AOT compilation will fail for IPEX as -fsycl won't be available for the compiler. Compiling with AOT is possible, but pointless as the result is unusably slow. 
-
-Then compile:
+Prepare a blanket and pillow and compile:
 ```shell
 ./compile_bundle.sh /opt/intel/oneapi/compiler/latest /opt/intel/oneapi/mkl/latest ats-m150
 ```
