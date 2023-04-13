@@ -49,7 +49,7 @@ wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCT
 echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
 sudo apt update && sudo apt upgrade -y
 
-sudo apt-get install build-essential intel-oneapi-mkl intel-level-zero-gpu level-zero intel-opencl-icd intel-media-va-driver-non-free libmfx1 libgl-dev intel-oneapi-compiler-dpcpp-cpp libjpeg
+sudo apt-get install build-essential intel-oneapi-mkl intel-level-zero-gpu level-zero intel-opencl-icd intel-media-va-driver-non-free libmfx1 libgl-dev intel-oneapi-compiler-dpcpp-cpp libjpeg9
         
 ```
 
@@ -154,7 +154,6 @@ cd ..
 
 After whichever of the 2 methods you chose:
 ```shell
-conda install -c conda-forge libstdcxx-ng=12 -y
 git clone https://github.com/a-One-Fan/tortoise-tts-fast-oneapi
 cd tortoise-tts-fast-oneapi
 python3 -m pip install -e .
@@ -166,9 +165,9 @@ pip install hypothesis
 
 # Usage, and some notes and current issues
 
-For ease of use, you can make an alias. Modern .bashrc recommends you make a .bash_aliases file (in your home directory) and put your aliases there. Assuming that the repository is in ~, here's your alias:
+For ease of use, you can make an alias. Modern .bashrc recommends you make a .bash_aliases file (in your home directory) and put your aliases there. Assuming that the repository is in ~ and your conda environment is `tortoise`, here's your alias:
 ```shell
-alias turtle="cd ~/tortoise-tts-fast-oneapi; source /opt/intel/oneapi/compiler/latest/env/vars.sh; source /opt/intel/oneapi/mkl/latest/env/vars.sh; streamlit run scripts/app.py"
+alias turtle="cd ~/tortoise-tts-fast-oneapi; conda activate tortoise; source /opt/intel/oneapi/compiler/latest/env/vars.sh; source /opt/intel/oneapi/mkl/latest/env/vars.sh; streamlit run scripts/app.py"
         
 ```
 You may then just `turtle` - this will launch the web UI. The web UI is still experimental, and can have some issues, but works mostly fine.
