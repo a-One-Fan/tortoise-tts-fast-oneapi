@@ -152,11 +152,11 @@ cd ..
 
 After whichever of the 2 methods you chose:
 ```shell
+conda install -c conda-forge libstdcxx-ng=12 -y
 git clone https://github.com/a-One-Fan/tortoise-tts-fast-oneapi
 cd tortoise-tts-fast-oneapi
 python3 -m pip install -e .
 pip3 install git+https://github.com/152334H/BigVGAN.git
-conda install -c conda-forge libstdcxx-ng=12 -y
 pip install streamlit
 pip install expecttest
 pip install hypothesis
