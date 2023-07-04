@@ -1,5 +1,7 @@
 This is a fork of the fast Tortoise (https://github.com/152334H/tortoise-tts-fast) aiming to introduce Intel OneAPI support for usage with the new Intel GPUs.
 
+I suggest you check out https://git.ecker.tech/a-One-Fan/ai-voice-cloning-oneapi (or the non-oneAPI one) which is an even better version, with gradio and the ability to train among other stuff.
+
 # Currently, the install instructions aren't working entirely correctly.
 
 # Installation instructions
